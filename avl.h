@@ -4,7 +4,7 @@ using namespace std;
 class AVL_Node {
     string key;
     int height;
-    string definition;
+    vector<string> definition;
     AVL_Node *left;
     AVL_Node *right;
     AVL_Node *right_rotate() {
@@ -37,12 +37,12 @@ class AVL_Node {
             left = l;
             right = r;
             height = h;
-            definition = d;
+            definition.push_back(d);
         }
         string get_key() {
             return key;
         }
-        string get_definition() {
+        vector<string> get_definition() {
             return definition;
         }
         AVL_Node *get_left() {
@@ -66,11 +66,12 @@ class AVL_Node {
             words->push_back(key);
             if (right != NULL) right->wordlist(words);
         }
-        AVL_Node *insert(string k, string definition) {
-            if (k < key && left != NULL) left = left->insert(k, definition);
-            else if (k > key && right != NULL) right = right->insert(k, definition);
-            else if (k < key) left = new AVL_Node(k, definition);
-            else if (k > key) right = new AVL_Node(k, definition);
+        AVL_Node *insert(string k, string def) {
+            if (k < key && left != NULL) left = left->insert(k, def);
+            else if (k > key && right != NULL) right = right->insert(k, def);
+            else if (k < key) left = new AVL_Node(k, def);
+            else if (k > key) right = new AVL_Node(k, def);
+            else if (k == key) definition.push_back(def);
 
             int left_height = (left == NULL) ? -1 : left->height;
             int right_height = (right == NULL) ? -1 : right->height;
@@ -105,7 +106,7 @@ class AVL_Tree {
             if (root == NULL) root = new AVL_Node(key, definition);
             else root = root->insert(key, definition); 
         }
-        string definition(string key) {
+        vector<string> definition(string key) {
             AVL_Node *current = root;
             string current_key = current->get_key();
             while (current_key != key) {
@@ -114,7 +115,7 @@ class AVL_Tree {
                 } else {
                     current = current->get_right();
                 }
-                if (current == NULL) return "";
+                if (current == NULL) return {};
                 current_key = current->get_key();
             }
             return current->get_definition();

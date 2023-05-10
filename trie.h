@@ -4,16 +4,16 @@ using namespace std;
 class Trie_Node {
     bool is_word;
     unordered_map<char, Trie_Node*> children;
-    string definition;
+    vector<string> definition;
     public:
         Trie_Node(string d = "") {
             is_word = 0;
-            definition = d;
             if (d != "") {
+                definition.push_back(d);
                 is_word = 1;
             }
         }
-        string get_definition() {
+        vector<string> get_definition() {
             return definition;
         }
         void pre_order() {
@@ -53,11 +53,13 @@ class Trie_Node {
                 }
             }
         }
-        Trie_Node *insert(char key, string d = "") {
+        Trie_Node *insert(char key, string def = "") {
             Trie_Node *child = children[key];
             if (child == NULL) {
-                child = new Trie_Node(d);
+                child = new Trie_Node(def);
                 children[key] = child;
+            } else {
+                children[key]->definition.push_back(def);
             }
             return child;
         }
@@ -79,11 +81,11 @@ class Trie {
             }
             current->insert(key[key.length()-1], definition);
         }
-        string definition(string key) {
+        vector<string> definition(string key) {
             Trie_Node *current = root;
             for (int i = 0; i < key.length(); ++i) {
                 current = current->child(key[i]);
-                if (current == NULL) return "";
+                if (current == NULL) return {};
             }
             return current->get_definition();
         }
