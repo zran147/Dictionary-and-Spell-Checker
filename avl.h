@@ -57,9 +57,14 @@ class AVL_Node {
             if (right != NULL) right->pre_order();
         }
         void in_order() {
-            if (left != NULL) left->pre_order();
+            if (left != NULL) left->in_order();
             cout << key << " ";
-            if (right != NULL) right->pre_order();
+            if (right != NULL) right->in_order();
+        }
+        void wordlist(vector<string> *&words) {
+            if (left != NULL) left->wordlist(words);
+            words->push_back(key);
+            if (right != NULL) right->wordlist(words);
         }
         AVL_Node *insert(string k, string definition) {
             if (k < key && left != NULL) left = left->insert(k, definition);
@@ -122,11 +127,65 @@ class AVL_Tree {
             if (root != NULL) root->in_order();
             cout << endl;
         }
+        vector<string> wordlist() {
+            vector<string> *words = new vector<string>();
+            if (root != NULL) root->wordlist(words);
+            return *words;
+        }
+        vector<string> spell_check(string word_to_correct) {
+            vector<string> closest_words;
+            int closest_distance = 10000;
+            int dist[50][50];
+            int length1 = word_to_correct.length();
+            int length2;
+            vector<string> words = wordlist();
+            for (int i = 0; i < 50; ++i) {
+                dist[0][i] = i;
+                dist[i][0] = i;
+            }
+            for (int i = 0; i < words.size(); ++i) {
+                string word_to_compare = words[i];
+                length2 = word_to_compare.length();
+                for (int m = 1; m <= length1; ++m) {
+                    for (int n = 1; n <= length2; ++n) {
+                        if (word_to_correct[m-1] == word_to_compare[n-1]) {
+                            dist[m][n] = min(dist[m-1][n-1], min(dist[m-1][n]+1, dist[m][n-1]+1));
+                        } else {
+                            dist[m][n] = min(dist[m-1][n-1], min(dist[m-1][n], dist[m][n-1])) + 1;
+                        }
+                    }
+                }
+                // cout << word_to_compare << endl;
+                // for (int m = 0; m < length1; ++m) {
+                //     for (int n = 0; n < length2; ++n) {
+                //         cout << dist[m][n] << ' ';
+                //     }
+                //     cout << endl;
+                // }
+                if (dist[length1][length2] < closest_distance) {
+                    closest_distance = dist[length1][length2];
+                    closest_words.clear();
+                    closest_words.push_back(word_to_compare);
+                } else if (dist[length1][length2] == closest_distance) {
+                    closest_words.push_back(word_to_compare);
+                }
+            }
+            return closest_words;
+        }
 };
 
-int main() {
-    AVL_Tree *avl = new AVL_Tree("hello", "yabolh");
-    avl->insert("what", "yeah");
-    cout << avl->definition("hello") << endl;
-    cout << avl->definition("what") << endl;
-}
+// int main() {
+//     AVL_Tree *avl = new AVL_Tree("hello", "yabolh");
+//     avl->insert("what", "yeah");
+//     avl->insert("alpha", "yeah");
+//     avl->insert("beta", "yeah");
+//     avl->insert("charlie", "yeah");
+//     avl->insert("delta", "yeah");
+//     avl->insert("echo", "yeah");
+//     avl->insert("ferguso", "yeah");
+//     // cout << avl->definition("hello") << endl;
+//     // cout << avl->definition("what") << endl;
+//     avl->in_order();
+//     for (auto i : avl->spell_check("apple"))
+//         cout << i << endl;
+// }
