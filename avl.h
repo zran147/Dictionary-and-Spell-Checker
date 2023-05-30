@@ -131,6 +131,7 @@ class AVL_Tree {
         vector<string> wordlist() {
             vector<string> *words = new vector<string>();
             if (root != NULL) root->wordlist(words);
+            // cout << words->size() << endl;
             return *words;
         }
         vector<string> spell_check(string word_to_correct) {
@@ -139,7 +140,13 @@ class AVL_Tree {
             int dist[50][50];
             int length1 = word_to_correct.length();
             int length2;
+            
+            auto start = chrono::system_clock::now();
             vector<string> words = wordlist();
+            auto end = chrono::system_clock::now();
+            chrono::duration<double> elapsed_seconds = end - start;
+            cout << "AVL Tree wordlist took:   " << elapsed_seconds.count() << "s";
+
             for (int i = 0; i < 50; ++i) {
                 dist[0][i] = i;
                 dist[i][0] = i;

@@ -36,20 +36,28 @@ class Trie_Node {
                 }
             }
         }
-        void wordlist(vector<string> *&words, string word = "") {
-            if (is_word) words->push_back(word);
+        void wordlist(vector<string> *&words, string *&word) {
+            if (is_word) words->push_back(*word);
             if (children[' '] != NULL) {
-                children[' ']->wordlist(words, word + ' ');
+                *word += ' ';
+                children[' ']->wordlist(words, word);
+                *word = word->substr(0, word->length()-1);
             }
             if (children['\''] != NULL) {
-                children['\'']->wordlist(words, word + '\'');
+                *word += '\'';
+                children['\'']->wordlist(words, word);
+                *word = word->substr(0, word->length()-1);
             }
             if (children['-'] != NULL) {
-                children['-']->wordlist(words, word + '-');
+                *word += '-';
+                children['-']->wordlist(words, word);
+                *word = word->substr(0, word->length()-1);
             }
             for (int i = 'a'; i <= 'z'; ++i) {
                 if (children[(char)i] != NULL) {
-                    children[(char)i]->wordlist(words, word + (char)i);
+                    *word += (char)i;
+                    children[(char)i]->wordlist(words, word);
+                    *word = word->substr(0, word->length()-1);
                 }
             }
         }
@@ -58,7 +66,7 @@ class Trie_Node {
             if (child == NULL) {
                 child = new Trie_Node(def);
                 children[key] = child;
-            } else {
+            } else if (def != "") {
                 children[key]->definition.push_back(def);
             }
             return child;
@@ -95,7 +103,9 @@ class Trie {
         }
         vector<string> wordlist() {
             vector<string> *words = new vector<string>();
-            root->wordlist(words);
+            string *word = new string("");
+            root->wordlist(words, word);
+            // cout << words->size() << endl;
             return *words;
         }
         vector<string> spell_check(string word_to_correct) {
@@ -104,7 +114,13 @@ class Trie {
             int dist[50][50];
             int length1 = word_to_correct.length();
             int length2;
+
+            auto start = chrono::system_clock::now();
             vector<string> words = wordlist();
+            auto end = chrono::system_clock::now();
+            chrono::duration<double> elapsed_seconds = end - start;
+            cout << "Trie wordlist took:       " << elapsed_seconds.count() << "s";
+
             for (int i = 0; i < 50; ++i) {
                 dist[0][i] = i;
                 dist[i][0] = i;
